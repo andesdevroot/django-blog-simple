@@ -5,4 +5,8 @@ class CommentForm(forms.ModelForm):
     class Meta:              # clase para validar data desde el formulario
         model = Comment
         fields = ('name', 'email','body')
+        labels = {
+            "name": "Nombre",
+            "body": "Comentario"
+        }
 
