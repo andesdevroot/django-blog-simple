@@ -1,5 +1,7 @@
 from django.views import generic
 from .models import Post
+from .forms import CommentForm
+from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
 
@@ -11,6 +13,32 @@ class PostList(generic.ListView):
 class PostDetail(generic.DetailView):
     model = Post
     template_name='post_detail.html'
+
+
+def post_detail(request, slug):
+    template_name = 'post_detail.html'
+    post = get_object_or_404(Post, slug=slug)
+    comments = post.comments.filter(active=True)
+    new_comment = None
+    # Comentario en el post
+    if request.method == 'POST':
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
+            #Crea el objeto Comentario pero no lo guarda en la base de datos aun
+            new_comment = comment_form.save(commit=False)
+            #agrega el post actual al comentario
+            new_comment.post = post
+            #guarda el comentario en la base de datos
+            new_comment.save()
+        else:
+            comment_form = CommentForm()
+
+    return render(request, template_name, {'post': post,
+                                           'comments': comments,
+                                           'new_comment': new_comment,
+                                           'comment_form': comment_form})
+
+                                           
 
 
 
